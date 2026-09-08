@@ -24,7 +24,7 @@ fmt-check:
 	cargo fmt --all -- --check
 
 wasm:
-	cargo build --workspace --target wasm32-unknown-unknown --release
+	cargo build --workspace --target wasm32v1-none --release
 
 clean:
 	cargo clean

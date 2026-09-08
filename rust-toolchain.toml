@@ -1,4 +1,6 @@
 [toolchain]
 channel = "stable"
-targets = ["wasm32-unknown-unknown"]
+# soroban-sdk 27 targets wasm32v1-none (Rust 1.84+); the older
+# wasm32-unknown-unknown is rejected by its build script on modern Rust.
+targets = ["wasm32v1-none"]
 components = ["rustfmt"]

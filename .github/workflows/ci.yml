@@ -18,7 +18,9 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          # soroban-sdk 27 requires the wasm32v1-none target on Rust 1.84+;
+          # the older wasm32-unknown-unknown is rejected by its build script.
+          targets: wasm32v1-none
           components: rustfmt
 
       - name: Cache cargo
@@ -34,4 +36,4 @@ jobs:
         run: cargo test --workspace --locked
 
       - name: Build wasm (release)
-        run: cargo build --workspace --locked --target wasm32-unknown-unknown --release
+        run: cargo build --workspace --locked --target wasm32v1-none --release
