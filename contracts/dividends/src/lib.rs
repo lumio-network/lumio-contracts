@@ -8,7 +8,14 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    InvalidAmount = 1,
+}
 
 #[contracttype]
 #[derive(Clone)]
@@ -25,22 +32,32 @@ pub struct DividendsContract;
 #[contractimpl]
 impl DividendsContract {
     /// Add `amount` to the distributable pool. Returns the new pool balance.
-    pub fn fund(env: Env, amount: i128) -> i128 {
+    /// Rejects non-positive amounts (amount must be > 0).
+    pub fn fund(env: Env, amount: i128) -> Result<i128, Error> {
+        if amount <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+
         let pool: i128 = env.storage().instance().get(&DataKey::Pool).unwrap_or(0);
         let next = pool + amount;
         env.storage().instance().set(&DataKey::Pool, &next);
-        next
+        Ok(next)
     }
 
     /// Record a payout share of `amount` for `member`. Returns their new share.
     ///
     /// Scaffold: pro-rata calculation and on-chain transfer arrive in a later phase.
-    pub fn record_share(env: Env, member: Address, amount: i128) -> i128 {
+    /// Rejects non-positive amounts (amount must be > 0).
+    pub fn record_share(env: Env, member: Address, amount: i128) -> Result<i128, Error> {
+        if amount <= 0 {
+            return Err(Error::InvalidAmount);
+        }
+
         let key = DataKey::Share(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;
         env.storage().persistent().set(&key, &next);
-        next
+        Ok(next)
     }
 
     /// The payout share currently recorded for `member`.
