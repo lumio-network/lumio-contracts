@@ -6,13 +6,6 @@
   },
   "auth": [
     [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
     []
   ],
   "ledger": {
@@ -35,7 +28,10 @@
               "key": {
                 "vec": [
                   {
-                    "symbol": "Share"
+                    "symbol": "Voted"
+                  },
+                  {
+                    "u32": 1
                   },
                   {
                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -44,7 +40,34 @@
               },
               "durability": "persistent",
               "val": {
-                "i128": "500"
+                "bool": true
+              }
+            }
+          },
+          "ext": "v0"
+        },
+        "live_until": 4095
+      },
+      {
+        "entry": {
+          "last_modified_ledger_seq": 0,
+          "data": {
+            "contract_data": {
+              "ext": "v0",
+              "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "key": {
+                "vec": [
+                  {
+                    "symbol": "Yes"
+                  },
+                  {
+                    "u32": 1
+                  }
+                ]
+              },
+              "durability": "persistent",
+              "val": {
+                "u32": 1
               }
             }
           },
@@ -66,32 +89,7 @@
                   "executable": {
                     "wasm": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                   },
-                  "storage": [
-                    {
-                      "key": {
-                        "vec": [
-                          {
-                            "symbol": "Pool"
-                          }
-                        ]
-                      },
-                      "val": {
-                        "i128": "1500"
-                      }
-                    },
-                    {
-                      "key": {
-                        "vec": [
-                          {
-                            "symbol": "TotalShares"
-                          }
-                        ]
-                      },
-                      "val": {
-                        "i128": "500"
-                      }
-                    }
-                  ]
+                  "storage": null
                 }
               }
             }

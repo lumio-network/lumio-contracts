@@ -26,7 +26,7 @@ workspace.
 
 ## Requirements
 
-- Rust (stable) with the `wasm32-unknown-unknown` target — see [`rust-toolchain.toml`](./rust-toolchain.toml).
+- Rust (stable) with the `wasm32v1-none` target — see [`rust-toolchain.toml`](./rust-toolchain.toml).
 - [`soroban-sdk`](https://crates.io/crates/soroban-sdk) `27.x` (pinned in the workspace).
 - Optional: the [Stellar CLI](https://developers.stellar.org/docs/tools/cli) for deploys.
 

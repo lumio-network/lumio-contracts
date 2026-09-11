@@ -18,10 +18,7 @@ use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, 
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    /// The referenced proposal does not exist in the governance contract.
-    ProposalNotFound = 1,
-    /// The referenced proposal is closed and no longer accepts votes.
-    ProposalClosed = 2,
+    AlreadyVoted = 1,
 }
 
 #[contracttype]
@@ -60,36 +57,19 @@ impl VotingContract {
 
     /// Cast a vote on `proposal_id` by `voter` (`approve = true` counts as yes).
     ///
-    /// When a governance address is configured, cross-calls `get_proposal` to
-    /// verify the proposal exists and is open. Returns a typed error if the check
-    /// fails. Panics if the voter has already voted.
+    /// Requires authorization from `voter`.
+    /// Scaffold: enforces one vote per address; weighting and eligibility checks
+    /// arrive in a later phase. Returns an error if the voter has already voted.
     pub fn cast_vote(
         env: Env,
         proposal_id: u32,
         voter: Address,
         approve: bool,
     ) -> Result<(), Error> {
-        // Cross-contract guard — only active when governance address is set.
-        if let Some(gov_addr) = env
-            .storage()
-            .instance()
-            .get::<DataKey, Address>(&DataKey::GovernanceAddress)
-        {
-            let gov_client = lumio_governance::GovernanceContractClient::new(&env, &gov_addr);
-            match gov_client.get_proposal(&proposal_id) {
-                None => return Err(Error::ProposalNotFound),
-                Some(proposal) => {
-                    if !proposal.open {
-                        return Err(Error::ProposalClosed);
-                    }
-                }
-            }
-        }
-
         let voted_key = DataKey::Voted(proposal_id, voter);
         let already: bool = env.storage().persistent().get(&voted_key).unwrap_or(false);
         if already {
-            panic!("voter has already voted on this proposal");
+            return Err(Error::AlreadyVoted);
         }
         env.storage().persistent().set(&voted_key, &true);
 
@@ -100,7 +80,6 @@ impl VotingContract {
         };
         let count: u32 = env.storage().persistent().get(&tally_key).unwrap_or(0);
         env.storage().persistent().set(&tally_key, &(count + 1));
-
         Ok(())
     }
 

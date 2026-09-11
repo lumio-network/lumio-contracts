@@ -7,12 +7,6 @@
   "auth": [
     [],
     [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
     []
   ],
   "ledger": {
@@ -35,7 +29,7 @@
               "key": {
                 "vec": [
                   {
-                    "symbol": "Share"
+                    "symbol": "Balance"
                   },
                   {
                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -44,7 +38,7 @@
               },
               "durability": "persistent",
               "val": {
-                "i128": "500"
+                "i128": "50"
               }
             }
           },
@@ -71,24 +65,12 @@
                       "key": {
                         "vec": [
                           {
-                            "symbol": "Pool"
+                            "symbol": "Total"
                           }
                         ]
                       },
                       "val": {
-                        "i128": "1500"
-                      }
-                    },
-                    {
-                      "key": {
-                        "vec": [
-                          {
-                            "symbol": "TotalShares"
-                          }
-                        ]
-                      },
-                      "val": {
-                        "i128": "500"
+                        "i128": "50"
                       }
                     }
                   ]

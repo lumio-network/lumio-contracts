@@ -6,13 +6,6 @@
   },
   "auth": [
     [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
     []
   ],
   "ledger": {
@@ -35,7 +28,7 @@
               "key": {
                 "vec": [
                   {
-                    "symbol": "Share"
+                    "symbol": "Balance"
                   },
                   {
                     "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -44,7 +37,7 @@
               },
               "durability": "persistent",
               "val": {
-                "i128": "500"
+                "i128": "100"
               }
             }
           },
@@ -71,24 +64,12 @@
                       "key": {
                         "vec": [
                           {
-                            "symbol": "Pool"
+                            "symbol": "Total"
                           }
                         ]
                       },
                       "val": {
-                        "i128": "1500"
-                      }
-                    },
-                    {
-                      "key": {
-                        "vec": [
-                          {
-                            "symbol": "TotalShares"
-                          }
-                        ]
-                      },
-                      "val": {
-                        "i128": "500"
+                        "i128": "100"
                       }
                     }
                   ]
@@ -116,5 +97,29 @@
       }
     ]
   },
-  "events": []
+  "events": [
+    {
+      "event": {
+        "ext": "v0",
+        "contract_id": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+        "type_": "contract",
+        "body": {
+          "v0": {
+            "topics": [
+              {
+                "string": "deposit"
+              },
+              {
+                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+              }
+            ],
+            "data": {
+              "i128": "100"
+            }
+          }
+        }
+      },
+      "failed_call": false
+    }
+  ]
 }
