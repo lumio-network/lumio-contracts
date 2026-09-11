@@ -25,7 +25,7 @@ fn cast_vote_tallies_yes_and_no() {
 }
 
 #[test]
-#[should_panic(expected = "already voted")]
+#[should_panic(expected = "Error(Contract, #1)")]
 fn double_voting_panics() {
     let env = Env::default();
     env.mock_all_auths();
