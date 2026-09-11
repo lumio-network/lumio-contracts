@@ -7,7 +7,14 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    AlreadyVoted = 1,
+}
 
 #[contracttype]
 #[derive(Clone)]
@@ -27,13 +34,19 @@ pub struct VotingContract;
 impl VotingContract {
     /// Cast a vote on `proposal_id` by `voter` (`approve = true` counts as yes).
     ///
+    /// Requires authorization from `voter`.
     /// Scaffold: enforces one vote per address; weighting and eligibility checks
-    /// arrive in a later phase. Panics if the voter has already voted.
-    pub fn cast_vote(env: Env, proposal_id: u32, voter: Address, approve: bool) {
+    /// arrive in a later phase. Returns an error if the voter has already voted.
+    pub fn cast_vote(
+        env: Env,
+        proposal_id: u32,
+        voter: Address,
+        approve: bool,
+    ) -> Result<(), Error> {
         let voted_key = DataKey::Voted(proposal_id, voter);
         let already: bool = env.storage().persistent().get(&voted_key).unwrap_or(false);
         if already {
-            panic!("voter has already voted on this proposal");
+            return Err(Error::AlreadyVoted);
         }
         env.storage().persistent().set(&voted_key, &true);
 
@@ -44,6 +57,7 @@ impl VotingContract {
         };
         let count: u32 = env.storage().persistent().get(&tally_key).unwrap_or(0);
         env.storage().persistent().set(&tally_key, &(count + 1));
+        Ok(())
     }
 
     /// Return the `(yes, no)` tallies for `proposal_id`.
