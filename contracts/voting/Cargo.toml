@@ -13,6 +13,8 @@ doctest = false
 
 [dependencies]
 soroban-sdk = { workspace = true }
+lumio-governance = { path = "../governance" }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
+lumio-governance = { path = "../governance" }
