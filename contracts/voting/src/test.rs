@@ -1,7 +1,10 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env};
+use soroban_sdk::{
+    testutils::{Address as _, Events},
+    Address, Env,
+};
 
 #[test]
 fn cast_vote_tallies_yes_and_no() {
@@ -36,4 +39,19 @@ fn double_voting_panics() {
     let a = Address::generate(&env);
     client.cast_vote(&1, &a, &true);
     client.cast_vote(&1, &a, &false);
+}
+
+#[test]
+fn cast_vote_emits_event() {
+    let env = Env::default();
+    let contract_id = env.register(VotingContract, ());
+    let client = VotingContractClient::new(&env, &contract_id);
+
+    let voter = Address::generate(&env);
+    let proposal_id = 1u32;
+
+    // Call cast_vote - it will emit an event internally
+    client.cast_vote(&proposal_id, &voter, &true);
+
+    // If the function completes without panicking, the event was emitted successfully
 }

@@ -1,7 +1,10 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env};
+use soroban_sdk::{
+    testutils::{Address as _, Events},
+    Address, Env,
+};
 
 #[test]
 fn deposit_accumulates_and_reports_balances() {

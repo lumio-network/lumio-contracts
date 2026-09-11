@@ -56,7 +56,7 @@ impl GovernanceContract {
 
         let proposal = Proposal {
             id,
-            proposer,
+            proposer: proposer.clone(),
             title,
             open: true,
         };
@@ -64,6 +64,8 @@ impl GovernanceContract {
             .persistent()
             .set(&DataKey::Proposal(id), &proposal);
         env.storage().instance().set(&DataKey::ProposalCount, &id);
+
+        env.events().publish(("create_proposal", proposer), id);
 
         id
     }
