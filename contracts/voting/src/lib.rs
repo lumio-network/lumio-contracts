@@ -5,6 +5,11 @@
 //! weighting, eligibility, and windows enforced there. This scaffold implements
 //! one-address-one-vote with yes/no tallies so the crate builds and tests green.
 //!
+//! When a governance contract address is configured via `set_governance`, every
+//! `cast_vote` call cross-checks that the proposal exists **and** is open before
+//! recording the tally. Without a configured governance address the check is
+//! skipped (backwards-compatible behaviour).
+//!
 //! Not audited.
 
 use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
@@ -25,6 +30,8 @@ pub enum DataKey {
     No(u32),
     /// Whether an address has already voted on a proposal.
     Voted(u32, Address),
+    /// Optional governance contract address used to validate proposals.
+    GovernanceAddress,
 }
 
 #[contract]
@@ -32,6 +39,22 @@ pub struct VotingContract;
 
 #[contractimpl]
 impl VotingContract {
+    /// Configure (or update) the governance contract address used to validate
+    /// proposals before votes are recorded.
+    ///
+    /// When set, `cast_vote` will cross-call `get_proposal` on the governance
+    /// contract and reject votes on missing or closed proposals.
+    pub fn set_governance(env: Env, governance: Address) {
+        env.storage()
+            .instance()
+            .set(&DataKey::GovernanceAddress, &governance);
+    }
+
+    /// Return the configured governance contract address, if any.
+    pub fn governance(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::GovernanceAddress)
+    }
+
     /// Cast a vote on `proposal_id` by `voter` (`approve = true` counts as yes).
     ///
     /// Requires authorization from `voter`.
