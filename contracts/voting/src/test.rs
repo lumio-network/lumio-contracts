@@ -1,7 +1,10 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::{Address as _, Events}, Address, Env};
+use soroban_sdk::{
+    testutils::{Address as _, Events},
+    Address, Env,
+};
 
 #[test]
 fn cast_vote_tallies_yes_and_no() {
@@ -49,6 +52,6 @@ fn cast_vote_emits_event() {
 
     // Call cast_vote - it will emit an event internally
     client.cast_vote(&proposal_id, &voter, &true);
-    
+
     // If the function completes without panicking, the event was emitted successfully
 }
