@@ -27,8 +27,10 @@ impl TreasuryContract {
     /// Record a contribution of `amount` from `member` into the pooled treasury.
     /// Returns the member's new recorded balance.
     ///
-    /// Scaffold: pure bookkeeping — no token transfer or auth is wired yet.
+    /// Requires authorization from `member`.
     pub fn deposit(env: Env, member: Address, amount: i128) -> i128 {
+        member.require_auth();
+
         let key = DataKey::Balance(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;

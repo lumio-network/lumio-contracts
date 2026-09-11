@@ -8,7 +8,14 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env, String};
+
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    ProposalNotFound = 1,
+}
 
 #[contracttype]
 #[derive(Clone)]
@@ -35,8 +42,11 @@ pub struct GovernanceContract;
 impl GovernanceContract {
     /// Create a proposal authored by `proposer`. Returns the new proposal id.
     ///
-    /// Scaffold: quorum, voting windows, and auth checks arrive in a later phase.
+    /// Requires authorization from `proposer`.
+    /// Scaffold: quorum, voting windows arrive in a later phase.
     pub fn create_proposal(env: Env, proposer: Address, title: String) -> u32 {
+        proposer.require_auth();
+
         let id: u32 = env
             .storage()
             .instance()
@@ -56,6 +66,24 @@ impl GovernanceContract {
         env.storage().instance().set(&DataKey::ProposalCount, &id);
 
         id
+    }
+
+    /// Close a proposal by setting its `open` flag to false.
+    /// Returns an error if the proposal does not exist.
+    ///
+    /// Scaffold: quorum/threshold logic and voting windows arrive in a later phase.
+    pub fn close_proposal(env: Env, id: u32) -> Result<(), Error> {
+        let key = DataKey::Proposal(id);
+        let mut proposal: Proposal = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .ok_or(Error::ProposalNotFound)?;
+
+        proposal.open = false;
+        env.storage().persistent().set(&key, &proposal);
+
+        Ok(())
     }
 
     /// Fetch a stored proposal by id, if it exists.

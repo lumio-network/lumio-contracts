@@ -27,9 +27,12 @@ pub struct VotingContract;
 impl VotingContract {
     /// Cast a vote on `proposal_id` by `voter` (`approve = true` counts as yes).
     ///
+    /// Requires authorization from `voter`.
     /// Scaffold: enforces one vote per address; weighting and eligibility checks
     /// arrive in a later phase. Panics if the voter has already voted.
     pub fn cast_vote(env: Env, proposal_id: u32, voter: Address, approve: bool) {
+        voter.require_auth();
+
         let voted_key = DataKey::Voted(proposal_id, voter);
         let already: bool = env.storage().persistent().get(&voted_key).unwrap_or(false);
         if already {
