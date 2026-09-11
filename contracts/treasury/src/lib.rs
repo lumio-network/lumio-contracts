@@ -15,7 +15,6 @@ use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, 
 #[repr(u32)]
 pub enum Error {
     InvalidAmount = 1,
-    InsufficientBalance = 2,
 }
 
 #[contracttype]
@@ -35,14 +34,14 @@ impl TreasuryContract {
     /// Record a contribution of `amount` from `member` into the pooled treasury.
     /// Returns the member's new recorded balance.
     ///
+    /// Scaffold: pure bookkeeping — no token transfer or auth is wired yet.
     /// Rejects non-positive amounts (amount must be > 0).
-    /// Emits event: topic=("deposit", member), data=amount
     pub fn deposit(env: Env, member: Address, amount: i128) -> Result<i128, Error> {
         if amount <= 0 {
             return Err(Error::InvalidAmount);
         }
 
-        let key = DataKey::Balance(member.clone());
+        let key = DataKey::Balance(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;
         env.storage().persistent().set(&key, &next);
@@ -51,38 +50,6 @@ impl TreasuryContract {
         env.storage()
             .instance()
             .set(&DataKey::Total, &(total + amount));
-
-        env.events().publish(("deposit", member), amount);
-
-        Ok(next)
-    }
-
-    /// Withdraw `amount` from `member`'s recorded balance in the pooled treasury.
-    /// Returns the member's new recorded balance.
-    ///
-    /// Rejects non-positive amounts and withdrawals greater than the member's balance.
-    /// Emits event: topic=("withdraw", member), data=amount
-    pub fn withdraw(env: Env, member: Address, amount: i128) -> Result<i128, Error> {
-        if amount <= 0 {
-            return Err(Error::InvalidAmount);
-        }
-
-        let key = DataKey::Balance(member.clone());
-        let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
-
-        if amount > prev {
-            return Err(Error::InsufficientBalance);
-        }
-
-        let next = prev - amount;
-        env.storage().persistent().set(&key, &next);
-
-        let total: i128 = env.storage().instance().get(&DataKey::Total).unwrap_or(0);
-        env.storage()
-            .instance()
-            .set(&DataKey::Total, &(total - amount));
-
-        env.events().publish(("withdraw", member), amount);
 
         Ok(next)
     }

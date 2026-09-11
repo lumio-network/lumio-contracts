@@ -6,6 +6,8 @@ use soroban_sdk::{testutils::{Address as _, Events}, Address, Env};
 #[test]
 fn cast_vote_tallies_yes_and_no() {
     let env = Env::default();
+    env.mock_all_auths();
+
     let contract_id = env.register(VotingContract, ());
     let client = VotingContractClient::new(&env, &contract_id);
 
@@ -23,9 +25,11 @@ fn cast_vote_tallies_yes_and_no() {
 }
 
 #[test]
-#[should_panic(expected = "already voted")]
+#[should_panic(expected = "Error(Contract, #1)")]
 fn double_voting_panics() {
     let env = Env::default();
+    env.mock_all_auths();
+
     let contract_id = env.register(VotingContract, ());
     let client = VotingContractClient::new(&env, &contract_id);
 
