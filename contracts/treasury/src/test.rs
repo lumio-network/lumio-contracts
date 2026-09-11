@@ -6,6 +6,8 @@ use soroban_sdk::{testutils::Address as _, Address, Env};
 #[test]
 fn deposit_accumulates_and_reports_balances() {
     let env = Env::default();
+    env.mock_all_auths();
+
     let contract_id = env.register(TreasuryContract, ());
     let client = TreasuryContractClient::new(&env, &contract_id);
 

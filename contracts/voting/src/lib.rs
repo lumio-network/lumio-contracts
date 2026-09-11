@@ -34,6 +34,7 @@ pub struct VotingContract;
 impl VotingContract {
     /// Cast a vote on `proposal_id` by `voter` (`approve = true` counts as yes).
     ///
+    /// Requires authorization from `voter`.
     /// Scaffold: enforces one vote per address; weighting and eligibility checks
     /// arrive in a later phase. Returns an error if the voter has already voted.
     pub fn cast_vote(
