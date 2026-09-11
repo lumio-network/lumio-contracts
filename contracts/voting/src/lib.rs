@@ -29,8 +29,9 @@ impl VotingContract {
     ///
     /// Scaffold: enforces one vote per address; weighting and eligibility checks
     /// arrive in a later phase. Panics if the voter has already voted.
+    /// Emits event: topic=("cast_vote", voter, proposal_id), data=approve
     pub fn cast_vote(env: Env, proposal_id: u32, voter: Address, approve: bool) {
-        let voted_key = DataKey::Voted(proposal_id, voter);
+        let voted_key = DataKey::Voted(proposal_id, voter.clone());
         let already: bool = env.storage().persistent().get(&voted_key).unwrap_or(false);
         if already {
             panic!("voter has already voted on this proposal");
@@ -44,6 +45,9 @@ impl VotingContract {
         };
         let count: u32 = env.storage().persistent().get(&tally_key).unwrap_or(0);
         env.storage().persistent().set(&tally_key, &(count + 1));
+
+        env.events()
+            .publish(("cast_vote", voter, proposal_id), approve);
     }
 
     /// Return the `(yes, no)` tallies for `proposal_id`.

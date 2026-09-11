@@ -36,6 +36,7 @@ impl GovernanceContract {
     /// Create a proposal authored by `proposer`. Returns the new proposal id.
     ///
     /// Scaffold: quorum, voting windows, and auth checks arrive in a later phase.
+    /// Emits event: topic=("create_proposal", proposer), data=id
     pub fn create_proposal(env: Env, proposer: Address, title: String) -> u32 {
         let id: u32 = env
             .storage()
@@ -46,7 +47,7 @@ impl GovernanceContract {
 
         let proposal = Proposal {
             id,
-            proposer,
+            proposer: proposer.clone(),
             title,
             open: true,
         };
@@ -54,6 +55,8 @@ impl GovernanceContract {
             .persistent()
             .set(&DataKey::Proposal(id), &proposal);
         env.storage().instance().set(&DataKey::ProposalCount, &id);
+
+        env.events().publish(("create_proposal", proposer), id);
 
         id
     }

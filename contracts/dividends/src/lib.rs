@@ -25,21 +25,29 @@ pub struct DividendsContract;
 #[contractimpl]
 impl DividendsContract {
     /// Add `amount` to the distributable pool. Returns the new pool balance.
+    /// Emits event: topic=("fund",), data=amount
     pub fn fund(env: Env, amount: i128) -> i128 {
         let pool: i128 = env.storage().instance().get(&DataKey::Pool).unwrap_or(0);
         let next = pool + amount;
         env.storage().instance().set(&DataKey::Pool, &next);
+
+        env.events().publish(("fund",), amount);
+
         next
     }
 
     /// Record a payout share of `amount` for `member`. Returns their new share.
     ///
     /// Scaffold: pro-rata calculation and on-chain transfer arrive in a later phase.
+    /// Emits event: topic=("record_share", member), data=amount
     pub fn record_share(env: Env, member: Address, amount: i128) -> i128 {
-        let key = DataKey::Share(member);
+        let key = DataKey::Share(member.clone());
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;
         env.storage().persistent().set(&key, &next);
+
+        env.events().publish(("record_share", member), amount);
+
         next
     }
 
