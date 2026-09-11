@@ -17,6 +17,8 @@ pub enum DataKey {
     Share(Address),
     /// Distributable pool balance.
     Pool,
+    /// Running total of all recorded shares across all members.
+    TotalShares,
 }
 
 #[contract]
@@ -34,12 +36,24 @@ impl DividendsContract {
 
     /// Record a payout share of `amount` for `member`. Returns their new share.
     ///
+    /// Also increments the running `TotalShares` sum.
+    ///
     /// Scaffold: pro-rata calculation and on-chain transfer arrive in a later phase.
     pub fn record_share(env: Env, member: Address, amount: i128) -> i128 {
         let key = DataKey::Share(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;
         env.storage().persistent().set(&key, &next);
+
+        let total: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::TotalShares)
+            .unwrap_or(0);
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalShares, &(total + amount));
+
         next
     }
 
@@ -54,6 +68,17 @@ impl DividendsContract {
     /// The current distributable pool balance.
     pub fn pool(env: Env) -> i128 {
         env.storage().instance().get(&DataKey::Pool).unwrap_or(0)
+    }
+
+    /// The running sum of all recorded shares across every member.
+    ///
+    /// Provides operator-level read visibility into total distribution without
+    /// requiring knowledge of individual member addresses.
+    pub fn total_shares(env: Env) -> i128 {
+        env.storage()
+            .instance()
+            .get(&DataKey::TotalShares)
+            .unwrap_or(0)
     }
 }
 
