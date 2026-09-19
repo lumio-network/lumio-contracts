@@ -35,6 +35,13 @@ pub struct Proposal {
     pub open: bool,
 }
 
+#[contractevent]
+pub struct ProposalCreated {
+    #[topic]
+    pub proposer: Address,
+    pub id: u32,
+}
+
 #[contract]
 pub struct GovernanceContract;
 
@@ -65,7 +72,7 @@ impl GovernanceContract {
             .set(&DataKey::Proposal(id), &proposal);
         env.storage().instance().set(&DataKey::ProposalCount, &id);
 
-        env.events().publish(("create_proposal", proposer), id);
+        env.events().publish(ProposalCreated { proposer, id });
 
         id
     }
