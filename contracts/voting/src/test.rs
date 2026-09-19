@@ -18,13 +18,13 @@ fn cast_vote_tallies_yes_and_no() {
     let b = Address::generate(&env);
     let c = Address::generate(&env);
 
-    assert_eq!(client.tally(&1), (0, 0));
+    assert_eq!(client.tally(&1), Tally { yes: 0, no: 0 });
 
     client.cast_vote(&1, &a, &true);
     client.cast_vote(&1, &b, &true);
     client.cast_vote(&1, &c, &false);
 
-    assert_eq!(client.tally(&1), (2, 1));
+    assert_eq!(client.tally(&1), Tally { yes: 2, no: 1 });
 }
 
 #[test]
