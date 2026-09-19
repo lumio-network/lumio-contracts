@@ -1,10 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{
-    testutils::{Address as _, Events},
-    Address, Env,
-};
+use soroban_sdk::{testutils::Address as _, Address, Env};
 
 #[test]
 fn cast_vote_tallies_yes_and_no() {

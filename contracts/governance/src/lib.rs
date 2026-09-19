@@ -8,7 +8,9 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env, String};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, Address, Env, String,
+};
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -33,6 +35,13 @@ pub struct Proposal {
     pub proposer: Address,
     pub title: String,
     pub open: bool,
+}
+
+#[contractevent]
+pub struct ProposalCreated {
+    #[topic]
+    pub proposer: Address,
+    pub id: u32,
 }
 
 #[contract]
@@ -65,7 +74,8 @@ impl GovernanceContract {
             .set(&DataKey::Proposal(id), &proposal);
         env.storage().instance().set(&DataKey::ProposalCount, &id);
 
-        env.events().publish(("create_proposal", proposer), id);
+        env.events()
+            .publish_event(&ProposalCreated { proposer, id });
 
         id
     }
