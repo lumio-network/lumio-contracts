@@ -22,6 +22,13 @@ pub enum Error {
 }
 
 #[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Tally {
+    pub yes: u32,
+    pub no: u32,
+}
+
+#[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
     /// Yes tally for a proposal.
@@ -83,8 +90,8 @@ impl VotingContract {
         Ok(())
     }
 
-    /// Return the `(yes, no)` tallies for `proposal_id`.
-    pub fn tally(env: Env, proposal_id: u32) -> (u32, u32) {
+    /// Return the yes and no tallies for `proposal_id`.
+    pub fn tally(env: Env, proposal_id: u32) -> Tally {
         let yes: u32 = env
             .storage()
             .persistent()
@@ -95,7 +102,7 @@ impl VotingContract {
             .persistent()
             .get(&DataKey::No(proposal_id))
             .unwrap_or(0);
-        (yes, no)
+        Tally { yes, no }
     }
 }
 
