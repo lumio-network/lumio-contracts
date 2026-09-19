@@ -8,7 +8,9 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env, String};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, Address, Env, String,
+};
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
