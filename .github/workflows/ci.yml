@@ -21,13 +21,16 @@ jobs:
           # soroban-sdk 27 requires the wasm32v1-none target on Rust 1.84+;
           # the older wasm32-unknown-unknown is rejected by its build script.
           targets: wasm32v1-none
-          components: rustfmt
+          components: rustfmt, clippy
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
       - name: Format check
         run: cargo fmt --all -- --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Build workspace
         run: cargo build --workspace --locked
