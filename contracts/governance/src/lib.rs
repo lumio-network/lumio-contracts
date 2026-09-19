@@ -74,7 +74,8 @@ impl GovernanceContract {
             .set(&DataKey::Proposal(id), &proposal);
         env.storage().instance().set(&DataKey::ProposalCount, &id);
 
-        env.events().publish(ProposalCreated { proposer, id });
+        env.events()
+            .publish_event(&ProposalCreated { proposer, id });
 
         id
     }
