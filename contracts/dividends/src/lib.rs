@@ -60,6 +60,14 @@ impl DividendsContract {
         let key = DataKey::Share(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
         let next = prev + amount;
+        let total: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::TotalShares)
+            .unwrap_or(0);
+        env.storage()
+            .instance()
+            .set(&DataKey::TotalShares, &(total + amount));
         env.storage().persistent().set(&key, &next);
         Ok(next)
     }
