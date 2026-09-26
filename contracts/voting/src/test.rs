@@ -55,8 +55,8 @@ fn cast_vote_emits_event() {
     client.cast_vote(&proposal_id, &voter, &true);
 
     let events = env.events().all();
-    assert_eq!(events.len(), 1);
-    assert_eq!(events.first().unwrap().0, contract_id);
+    assert_eq!(events.events().len(), 1);
+    assert_eq!(events.filter_by_contract(&contract_id).events().len(), 1);
 }
 
 #[test]
