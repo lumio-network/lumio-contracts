@@ -2,7 +2,10 @@
 
 use super::*;
 use lumio_governance::{GovernanceContract, GovernanceContractClient};
-use soroban_sdk::{testutils::Address as _, Address, Env, String};
+use soroban_sdk::{
+    testutils::{Address as _, Events},
+    Address, Env, String,
+};
 
 #[test]
 fn cast_vote_tallies_yes_and_no() {
