@@ -12,13 +12,17 @@
 //!
 //! Not audited.
 
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{
+    contract, contracterror, contractevent, contractimpl, contracttype, Address, Env,
+};
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
     AlreadyVoted = 1,
+    ProposalNotFound = 2,
+    ProposalClosed = 3,
 }
 
 #[contracttype]
@@ -39,6 +43,15 @@ pub enum DataKey {
     Voted(u32, Address),
     /// Optional governance contract address used to validate proposals.
     GovernanceAddress,
+}
+
+#[contractevent]
+pub struct VoteCast {
+    #[topic]
+    pub proposal_id: u32,
+    #[topic]
+    pub voter: Address,
+    pub approve: bool,
 }
 
 #[contract]
@@ -73,7 +86,17 @@ impl VotingContract {
         voter: Address,
         approve: bool,
     ) -> Result<(), Error> {
-        let voted_key = DataKey::Voted(proposal_id, voter);
+        if let Some(governance) = env.storage().instance().get(&DataKey::GovernanceAddress) {
+            let client = lumio_governance::GovernanceContractClient::new(&env, &governance);
+            let proposal = client
+                .get_proposal(&proposal_id)
+                .ok_or(Error::ProposalNotFound)?;
+            if !proposal.open {
+                return Err(Error::ProposalClosed);
+            }
+        }
+
+        let voted_key = DataKey::Voted(proposal_id, voter.clone());
         let already: bool = env.storage().persistent().get(&voted_key).unwrap_or(false);
         if already {
             return Err(Error::AlreadyVoted);
@@ -87,6 +110,11 @@ impl VotingContract {
         };
         let count: u32 = env.storage().persistent().get(&tally_key).unwrap_or(0);
         env.storage().persistent().set(&tally_key, &(count + 1));
+        env.events().publish_event(&VoteCast {
+            proposal_id,
+            voter,
+            approve,
+        });
         Ok(())
     }
 
