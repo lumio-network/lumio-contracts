@@ -62,6 +62,10 @@ cargo test  --workspace --locked
 cargo build --workspace --locked --target wasm32v1-none --release
 ```
 
+Soroban test snapshots are generated or updated by `cargo test --workspace --locked`.
+After changing tests, review the `contracts/*/test_snapshots/` diff and keep only
+snapshots for tests that still exist.
+
 ## Making a change
 
 1. **Find or open an issue.** Browse [`good first issue`](https://github.com/lumio-network/lumio-contracts/labels/good%20first%20issue)

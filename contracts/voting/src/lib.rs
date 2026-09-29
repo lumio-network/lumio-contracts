@@ -86,6 +86,8 @@ impl VotingContract {
         voter: Address,
         approve: bool,
     ) -> Result<(), Error> {
+        voter.require_auth();
+
         if let Some(governance) = env.storage().instance().get(&DataKey::GovernanceAddress) {
             let client = lumio_governance::GovernanceContractClient::new(&env, &governance);
             let proposal = client
