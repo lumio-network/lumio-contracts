@@ -17,6 +17,8 @@ use soroban_sdk::{
 #[repr(u32)]
 pub enum Error {
     ProposalNotFound = 1,
+    EmptyTitle = 2,
+    AlreadyClosed = 3,
 }
 
 #[contracttype]
@@ -44,6 +46,12 @@ pub struct ProposalCreated {
     pub id: u32,
 }
 
+#[contractevent]
+pub struct ProposalClosed {
+    #[topic]
+    pub id: u32,
+}
+
 #[contract]
 pub struct GovernanceContract;
 
@@ -53,8 +61,12 @@ impl GovernanceContract {
     ///
     /// Requires authorization from `proposer`.
     /// Scaffold: quorum, voting windows arrive in a later phase.
-    pub fn create_proposal(env: Env, proposer: Address, title: String) -> u32 {
+    pub fn create_proposal(env: Env, proposer: Address, title: String) -> Result<u32, Error> {
         proposer.require_auth();
+
+        if title.len() == 0 {
+            return Err(Error::EmptyTitle);
+        }
 
         let id: u32 = env
             .storage()
@@ -77,11 +89,11 @@ impl GovernanceContract {
         env.events()
             .publish_event(&ProposalCreated { proposer, id });
 
-        id
+        Ok(id)
     }
 
     /// Close a proposal by setting its `open` flag to false.
-    /// Returns an error if the proposal does not exist.
+    /// Returns an error if the proposal does not exist or is already closed.
     ///
     /// Scaffold: quorum/threshold logic and voting windows arrive in a later phase.
     pub fn close_proposal(env: Env, id: u32) -> Result<(), Error> {
@@ -92,8 +104,14 @@ impl GovernanceContract {
             .get(&key)
             .ok_or(Error::ProposalNotFound)?;
 
+        if !proposal.open {
+            return Err(Error::AlreadyClosed);
+        }
+
         proposal.open = false;
         env.storage().persistent().set(&key, &proposal);
+
+        env.events().publish_event(&ProposalClosed { id });
 
         Ok(())
     }
