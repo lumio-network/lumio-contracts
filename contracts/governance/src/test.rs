@@ -133,7 +133,7 @@ fn close_proposal_emits_event() {
 
     // The test framework captures events; we should see ProposalClosed
     assert!(events.events().len() >= 1);
-    
+
     // Verify the last event is ProposalClosed for our proposal
     let contract_events = events.filter_by_contract(&contract_id);
     assert!(contract_events.events().len() >= 1);
