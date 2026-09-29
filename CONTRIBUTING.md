@@ -84,6 +84,33 @@ speculative "full protocol" feature requests; scope to a single, testable change
 Found a security concern? Please do not open a public issue with exploit details — see
 [`SECURITY.md`](./SECURITY.md) if present, or contact the maintainers privately via the org.
 
+## Test snapshots
+
+Each contract stores Soroban environment snapshots under `contracts/<crate>/test_snapshots/`.
+These files are committed to the repository and are generated automatically by `cargo test`.
+
+**Every snapshot file must have a corresponding `#[test]` function** — a snapshot with no matching
+test is an orphan and will cause CI confusion.
+
+### Regenerating snapshots
+
+If you add, rename, or delete a test, regenerate the snapshots by running:
+
+```bash
+cargo test --workspace
+```
+
+The test harness writes or overwrites the relevant snapshot files. Review the diff (`git diff
+contracts/*/test_snapshots/`) before committing — the snapshot should reflect only the tests you
+changed.
+
+### Keeping snapshots tidy
+
+- When you **rename a test**, delete the old snapshot file (it becomes an orphan) and commit the
+  newly generated one.
+- When you **delete a test**, delete its snapshot file in the same commit.
+- Never commit snapshot files that do not correspond to a current test.
+
 ## License
 
 By contributing you agree that your contributions are licensed under the project's
