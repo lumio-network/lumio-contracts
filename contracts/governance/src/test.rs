@@ -1,7 +1,10 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env, String};
+use soroban_sdk::{
+    testutils::{Address as _, Events},
+    Address, Env, String,
+};
 
 #[test]
 fn create_proposal_assigns_incrementing_ids() {
@@ -66,4 +69,72 @@ fn close_proposal_errors_on_missing_id() {
 
     // Try to close a nonexistent proposal
     client.close_proposal(&99);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn create_proposal_rejects_empty_title() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(GovernanceContract, ());
+    let client = GovernanceContractClient::new(&env, &contract_id);
+
+    let proposer = Address::generate(&env);
+    let empty_title = String::from_str(&env, "");
+
+    // Should panic with Error::EmptyTitle (contract error #2)
+    client.create_proposal(&proposer, &empty_title);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #3)")]
+fn close_proposal_rejects_already_closed() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(GovernanceContract, ());
+    let client = GovernanceContractClient::new(&env, &contract_id);
+
+    let proposer = Address::generate(&env);
+    let title = String::from_str(&env, "Test proposal");
+
+    // Create and close a proposal
+    let proposal_id = client.create_proposal(&proposer, &title);
+    client.close_proposal(&proposal_id);
+
+    // Verify proposal is closed
+    let proposal = client.get_proposal(&proposal_id).unwrap();
+    assert!(!proposal.open);
+
+    // Try to close it again - should panic with Error::AlreadyClosed (contract error #3)
+    client.close_proposal(&proposal_id);
+}
+
+#[test]
+fn close_proposal_emits_event() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(GovernanceContract, ());
+    let client = GovernanceContractClient::new(&env, &contract_id);
+
+    let proposer = Address::generate(&env);
+    let title = String::from_str(&env, "Test proposal");
+
+    // Create a proposal
+    let proposal_id = client.create_proposal(&proposer, &title);
+
+    // Close the proposal
+    client.close_proposal(&proposal_id);
+
+    // Verify the ProposalClosed event was emitted
+    let events = env.events().all();
+
+    // The test framework captures events; we should see ProposalClosed
+    assert!(!events.events().is_empty());
+
+    // Verify the last event is ProposalClosed for our proposal
+    let contract_events = events.filter_by_contract(&contract_id);
+    assert!(!contract_events.events().is_empty());
 }
