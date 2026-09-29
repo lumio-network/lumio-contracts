@@ -12,14 +12,20 @@ jobs:
   build-and-test:
     name: build + test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust: [stable, beta]
+      fail-fast: false
+    continue-on-error: ${{ matrix.rust == 'beta' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@master
         with:
           # soroban-sdk 27 requires the wasm32v1-none target on Rust 1.84+;
           # the older wasm32-unknown-unknown is rejected by its build script.
+          toolchain: ${{ matrix.rust }}
           targets: wasm32v1-none
           components: rustfmt, clippy
 

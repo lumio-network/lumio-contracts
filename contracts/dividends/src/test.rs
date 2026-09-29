@@ -69,3 +69,42 @@ fn record_share_rejects_zero_amount() {
     let member = Address::generate(&env);
     client.record_share(&member, &0);
 }
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn fund_returns_overflow_error_on_i128_max() {
+    let env = Env::default();
+    let contract_id = env.register(DividendsContract, ());
+    let client = DividendsContractClient::new(&env, &contract_id);
+
+    // Fill pool to i128::MAX, then adding 1 must overflow.
+    client.fund(&i128::MAX);
+    client.fund(&1);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn record_share_returns_overflow_error_on_member_share_max() {
+    let env = Env::default();
+    let contract_id = env.register(DividendsContract, ());
+    let client = DividendsContractClient::new(&env, &contract_id);
+
+    let member = Address::generate(&env);
+    // Fill member's share to i128::MAX, then adding 1 must overflow.
+    client.record_share(&member, &i128::MAX);
+    client.record_share(&member, &1);
+}
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn record_share_returns_overflow_error_on_total_shares_max() {
+    let env = Env::default();
+    let contract_id = env.register(DividendsContract, ());
+    let client = DividendsContractClient::new(&env, &contract_id);
+
+    let member_a = Address::generate(&env);
+    let member_b = Address::generate(&env);
+    // Fill TotalShares to i128::MAX via member_a, then adding 1 via member_b must overflow.
+    client.record_share(&member_a, &i128::MAX);
+    client.record_share(&member_b, &1);
+}
