@@ -64,7 +64,7 @@ impl GovernanceContract {
     pub fn create_proposal(env: Env, proposer: Address, title: String) -> Result<u32, Error> {
         proposer.require_auth();
 
-        if title.len() == 0 {
+        if title.is_empty() {
             return Err(Error::EmptyTitle);
         }
 
