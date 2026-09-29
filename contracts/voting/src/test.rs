@@ -117,3 +117,17 @@ fn cast_vote_rejects_closed_proposal_with_governance() {
     let voter = Address::generate(&env);
     voting.cast_vote(&proposal_id, &voter, &true);
 }
+
+#[test]
+#[should_panic(expected = "Error(Auth, InvalidAction)")]
+fn cast_vote_rejects_unauthorized_voter() {
+    let env = Env::default();
+    // Deliberately do NOT call env.mock_all_auths() so require_auth() fails.
+
+    let contract_id = env.register(VotingContract, ());
+    let client = VotingContractClient::new(&env, &contract_id);
+
+    let voter = Address::generate(&env);
+    // No authorization provided — expect auth failure.
+    client.cast_vote(&1, &voter, &true);
+}
