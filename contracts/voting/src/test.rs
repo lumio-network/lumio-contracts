@@ -29,6 +29,17 @@ fn cast_vote_tallies_yes_and_no() {
 }
 
 #[test]
+#[should_panic]
+fn cast_vote_requires_voter_authorization() {
+    let env = Env::default();
+    let contract_id = env.register(VotingContract, ());
+    let client = VotingContractClient::new(&env, &contract_id);
+    let voter = Address::generate(&env);
+
+    client.cast_vote(&1, &voter, &true);
+}
+
+#[test]
 #[should_panic(expected = "Error(Contract, #1)")]
 fn double_voting_panics() {
     let env = Env::default();
