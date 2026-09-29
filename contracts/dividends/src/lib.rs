@@ -15,6 +15,7 @@ use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, 
 #[repr(u32)]
 pub enum Error {
     InvalidAmount = 1,
+    Overflow = 2,
 }
 
 #[contracttype]
@@ -41,7 +42,7 @@ impl DividendsContract {
         }
 
         let pool: i128 = env.storage().instance().get(&DataKey::Pool).unwrap_or(0);
-        let next = pool + amount;
+        let next = pool.checked_add(amount).ok_or(Error::Overflow)?;
         env.storage().instance().set(&DataKey::Pool, &next);
         Ok(next)
     }
@@ -59,15 +60,16 @@ impl DividendsContract {
 
         let key = DataKey::Share(member);
         let prev: i128 = env.storage().persistent().get(&key).unwrap_or(0);
-        let next = prev + amount;
+        let next = prev.checked_add(amount).ok_or(Error::Overflow)?;
         let total: i128 = env
             .storage()
             .instance()
             .get(&DataKey::TotalShares)
             .unwrap_or(0);
+        let new_total = total.checked_add(amount).ok_or(Error::Overflow)?;
         env.storage()
             .instance()
-            .set(&DataKey::TotalShares, &(total + amount));
+            .set(&DataKey::TotalShares, &new_total);
         env.storage().persistent().set(&key, &next);
         Ok(next)
     }

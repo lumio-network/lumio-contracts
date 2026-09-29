@@ -47,3 +47,16 @@ fn deposit_rejects_zero_amount() {
     let alice = Address::generate(&env);
     client.deposit(&alice, &0);
 }
+
+#[test]
+#[should_panic(expected = "Error(Contract, #2)")]
+fn deposit_returns_overflow_error_on_i128_max() {
+    let env = Env::default();
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+
+    let alice = Address::generate(&env);
+    // Fill alice's balance to i128::MAX, then adding 1 must overflow.
+    client.deposit(&alice, &i128::MAX);
+    client.deposit(&alice, &1);
+}
