@@ -45,6 +45,8 @@ fn close_proposal_transitions_open_to_closed() {
     let title = String::from_str(&env, "Buy a maize mill");
 
     let id = client.create_proposal(&proposer, &title);
+    let proposal_count = client.proposal_count();
+    assert_eq!(proposal_count, 1);
 
     // Verify proposal starts as open
     let proposal = client.get_proposal(&id).unwrap();
@@ -56,6 +58,7 @@ fn close_proposal_transitions_open_to_closed() {
     // Verify proposal is now closed
     let proposal = client.get_proposal(&id).unwrap();
     assert!(!proposal.open);
+    assert_eq!(client.proposal_count(), proposal_count);
 }
 
 #[test]
