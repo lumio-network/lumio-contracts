@@ -27,6 +27,37 @@ fn deposit_accumulates_and_reports_balances() {
 }
 
 #[test]
+fn deposits_keep_member_balances_isolated_and_total_consistent() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(TreasuryContract, ());
+    let client = TreasuryContractClient::new(&env, &contract_id);
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    let charlie = Address::generate(&env);
+
+    client.deposit(&alice, &100);
+    client.deposit(&bob, &25);
+    client.deposit(&charlie, &70);
+    client.deposit(&alice, &15);
+    client.deposit(&bob, &10);
+
+    let alice_balance = client.balance(&alice);
+    let bob_balance = client.balance(&bob);
+    let charlie_balance = client.balance(&charlie);
+
+    assert_eq!(alice_balance, 115);
+    assert_eq!(bob_balance, 35);
+    assert_eq!(charlie_balance, 70);
+    assert_eq!(client.total(), 220);
+    assert_eq!(
+        client.total(),
+        alice_balance + bob_balance + charlie_balance
+    );
+}
+
+#[test]
 #[should_panic(expected = "Error(Contract, #1)")]
 fn deposit_rejects_negative_amount() {
     let env = Env::default();
