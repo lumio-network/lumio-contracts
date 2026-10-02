@@ -3,7 +3,7 @@
 use super::*;
 use soroban_sdk::{
     testutils::{Address as _, Events},
-    Address, Env, String,
+    Address, Env, Event, String,
 };
 
 #[test]
@@ -31,6 +31,27 @@ fn create_proposal_assigns_incrementing_ids() {
     assert_eq!(stored.title, title_a);
     assert!(stored.open);
     assert!(client.get_proposal(&99).is_none());
+}
+
+#[test]
+fn create_proposal_emits_event() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(GovernanceContract, ());
+    let client = GovernanceContractClient::new(&env, &contract_id);
+    let proposer = Address::generate(&env);
+    let title = String::from_str(&env, "Buy a maize mill");
+
+    let id = client.create_proposal(&proposer, &title);
+
+    let expected_event = ProposalCreated { proposer, id };
+    let events = env.events().all();
+    assert_eq!(events.events().len(), 1);
+    assert_eq!(
+        events.events()[0],
+        expected_event.to_xdr(&env, &contract_id)
+    );
 }
 
 #[test]
