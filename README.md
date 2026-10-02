@@ -24,6 +24,23 @@ table-banking groups, SACCOs).
 Each contract is an independent crate under [`contracts/`](./contracts), sharing one Cargo
 workspace.
 
+## Error codes
+
+Contract errors are returned as `Error(Contract, #N)`. Codes are scoped to each contract.
+
+| Contract | Error variant | Code |
+| --- | --- | ---: |
+| `treasury` | `InvalidAmount` | 1 |
+| `treasury` | `Overflow` | 2 |
+| `governance` | `ProposalNotFound` | 1 |
+| `governance` | `EmptyTitle` | 2 |
+| `governance` | `AlreadyClosed` | 3 |
+| `dividends` | `InvalidAmount` | 1 |
+| `dividends` | `Overflow` | 2 |
+| `voting` | `AlreadyVoted` | 1 |
+| `voting` | `ProposalNotFound` | 2 |
+| `voting` | `ProposalClosed` | 3 |
+
 ## Requirements
 
 - Rust (stable) with the `wasm32v1-none` target — see [`rust-toolchain.toml`](./rust-toolchain.toml).
