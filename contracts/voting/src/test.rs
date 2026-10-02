@@ -29,6 +29,39 @@ fn cast_vote_tallies_yes_and_no() {
 }
 
 #[test]
+fn tallies_are_independent_across_proposals() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(VotingContract, ());
+    let client = VotingContractClient::new(&env, &contract_id);
+    let voter_a = Address::generate(&env);
+    let voter_b = Address::generate(&env);
+    let voter_c = Address::generate(&env);
+
+    client.cast_vote(&1, &voter_a, &true);
+    client.cast_vote(&1, &voter_b, &false);
+    client.cast_vote(&2, &voter_c, &true);
+
+    assert_eq!(client.tally(&1), Tally { yes: 1, no: 1 });
+    assert_eq!(client.tally(&2), Tally { yes: 1, no: 0 });
+}
+
+#[test]
+fn governance_getter_round_trips_configured_address() {
+    let env = Env::default();
+    let contract_id = env.register(VotingContract, ());
+    let client = VotingContractClient::new(&env, &contract_id);
+    let governance = Address::generate(&env);
+
+    assert_eq!(client.governance(), None);
+
+    client.set_governance(&governance);
+
+    assert_eq!(client.governance(), Some(governance));
+}
+
+#[test]
 #[should_panic(expected = "Error(Contract, #1)")]
 fn double_voting_panics() {
     let env = Env::default();
