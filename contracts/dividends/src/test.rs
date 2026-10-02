@@ -29,6 +29,30 @@ fn fund_and_record_share_track_independently() {
 }
 
 #[test]
+fn total_shares_tracks_running_sum_across_members() {
+    let env = Env::default();
+    let contract_id = env.register(DividendsContract, ());
+    let client = DividendsContractClient::new(&env, &contract_id);
+
+    let alice = Address::generate(&env);
+    let bob = Address::generate(&env);
+    let charlie = Address::generate(&env);
+
+    assert_eq!(client.total_shares(), 0);
+
+    assert_eq!(client.record_share(&alice, &100), 100);
+    assert_eq!(client.total_shares(), 100);
+    assert_eq!(client.record_share(&bob, &250), 250);
+    assert_eq!(client.total_shares(), 350);
+    assert_eq!(client.record_share(&charlie, &75), 75);
+    assert_eq!(client.total_shares(), 425);
+    assert_eq!(client.record_share(&alice, &50), 150);
+    assert_eq!(client.total_shares(), 475);
+    assert_eq!(client.record_share(&bob, &25), 275);
+    assert_eq!(client.total_shares(), 500);
+}
+
+#[test]
 #[should_panic(expected = "Error(Contract, #1)")]
 fn fund_rejects_negative_amount() {
     let env = Env::default();
