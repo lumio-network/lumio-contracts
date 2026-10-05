@@ -24,6 +24,30 @@ table-banking groups, SACCOs).
 Each contract is an independent crate under [`contracts/`](./contracts), sharing one Cargo
 workspace.
 
+## Entrypoints
+
+Public `#[contractimpl]` methods of each contract. `env: Env` is implicit on every call and omitted
+below. Signatures mirror the code; update this table by hand whenever a contract's API changes.
+
+| Contract | Entrypoint | Signature | Description |
+| --- | --- | --- | --- |
+| `treasury` | `deposit` | `(member: Address, amount: i128) -> Result<i128, Error>` | Records a contribution from `member`; returns their new balance. Rejects `amount <= 0`. |
+| `treasury` | `balance` | `(member: Address) -> i128` | Amount `member` has contributed so far (`0` if none). |
+| `treasury` | `total` | `() -> i128` | Total pooled across every member (`0` if none). |
+| `governance` | `create_proposal` | `(proposer: Address, title: String) -> Result<u32, Error>` | Creates an open proposal and returns its id. Requires `proposer` auth; rejects an empty title. |
+| `governance` | `close_proposal` | `(id: u32) -> Result<(), Error>` | Closes a proposal. Fails if it does not exist or is already closed. |
+| `governance` | `get_proposal` | `(id: u32) -> Option<Proposal>` | Fetches a stored proposal by id, if it exists. |
+| `governance` | `proposal_count` | `() -> u32` | Number of proposals created so far (`0` if none). |
+| `dividends` | `fund` | `(amount: i128) -> Result<i128, Error>` | Adds `amount` to the distributable pool; returns the new pool balance. Rejects `amount <= 0`. |
+| `dividends` | `record_share` | `(member: Address, amount: i128) -> Result<i128, Error>` | Records a payout share for `member`; returns their new share. Rejects `amount <= 0`. |
+| `dividends` | `share_of` | `(member: Address) -> i128` | Payout share recorded for `member` (`0` if none). |
+| `dividends` | `pool` | `() -> i128` | Current distributable pool balance (`0` if unfunded). |
+| `dividends` | `total_shares` | `() -> i128` | Running sum of all recorded shares across every member (`0` if none). |
+| `voting` | `set_governance` | `(governance: Address)` | Sets the governance contract used to validate proposals before votes are recorded. |
+| `voting` | `governance` | `() -> Option<Address>` | The configured governance contract address, if any. |
+| `voting` | `cast_vote` | `(proposal_id: u32, voter: Address, approve: bool) -> Result<(), Error>` | Casts one vote (`approve = true` counts as yes). Requires `voter` auth; fails if the voter already voted, or if governance is set and the proposal is missing or closed. |
+| `voting` | `tally` | `(proposal_id: u32) -> Tally` | Yes/no tallies for `proposal_id` (both `0` if no votes). |
+
 ## Error codes
 
 Contract errors are returned as `Error(Contract, #N)`. Codes are scoped to each contract.
