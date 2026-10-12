@@ -1,5 +1,8 @@
 # lumio-contracts
 
+[![CI](https://github.com/lumio-network/lumio-contracts/actions/workflows/ci.yml/badge.svg)](https://github.com/lumio-network/lumio-contracts/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 **The trust layer.** Soroban smart contracts on [Stellar](https://stellar.org) that put a
 savings group's ledger on-chain: pooled contributions, governance, payouts, and votes become
 visible to every member and provable by the chain.
