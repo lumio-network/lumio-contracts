@@ -74,6 +74,9 @@ cargo build --workspace --locked --target wasm32v1-none --release
    `fix(voting): return a structured error on double vote`.
 5. **Open the PR** against `main`, link the issue (`Closes #123`), and describe what changed and how
    you verified it (paste `cargo test` output).
+6. **Update the changelog.** For user-visible or release-affecting changes, add an entry under
+   `[Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md) following
+   [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Changelog
 
