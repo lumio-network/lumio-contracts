@@ -78,6 +78,17 @@ cargo build --workspace --locked --target wasm32v1-none --release
    `[Unreleased]` in [`CHANGELOG.md`](./CHANGELOG.md) following
    [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Changelog
+
+Notable changes are tracked in [`CHANGELOG.md`](./CHANGELOG.md) using the
+[Keep a Changelog](https://keepachangelog.com/) format with semantic-versioning
+headings. For most small PRs (a test, a fix, an idiom) you do **not** need to
+touch it — the maintainers fold changes into the `[Unreleased]` section at
+release time. Add a one-line entry under `[Unreleased]` yourself only when your
+PR adds or changes something user-visible (a new entrypoint, a behaviour change,
+a new crate). Do not edit the dated `0.1.0` section, which records what shipped
+in the initial scaffold.
+
 ## Reporting a bug or proposing work
 
 Open an issue with a clear title, the affected crate, and — for a behaviour bug — a minimal test or
